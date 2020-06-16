@@ -9,6 +9,7 @@
 import time
 import json
 import argparse
+from torch.cuda import is_available
 
 from src.data.loader import check_all_data_params, load_data
 from src.utils import bool_flag, initialize_exp
@@ -236,11 +237,12 @@ def main(params):
     assert params.exp_name
     check_all_data_params(params)
     check_mt_model_params(params)
+    cuda_avail = is_available()
 
     # initialize experiment / load data / build model
     logger = initialize_exp(params)
     data = load_data(params)
-    encoder, decoder, discriminator, lm = build_mt_model(params, data)
+    encoder, decoder, discriminator, lm = build_mt_model(params, data, cuda_avail)
 
     # initialize trainer / reload checkpoint / initialize evaluator
     trainer = TrainerMT(encoder, decoder, discriminator, lm, data, params)
